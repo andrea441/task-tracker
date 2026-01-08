@@ -42,7 +42,7 @@ def update_task(id, new_description):
     for task in tasks:
         if task['id'] == id:
             task['description'] = new_description
-            # TO - DO: Update "updatedAt" date.
+            task['updatedAt'] = datetime.now().isoformat()
             found = True
             break
     if found:
@@ -66,17 +66,31 @@ def delete_task(id):
         print(f'Task with ID {id} was not found')
 
 def list_tasks():
+    # TO-DO: Add listing by status
     tasks = load_tasks()
-    if tasks:
-        for task in tasks:
-            print(f'ID: {task['id']}')
-            print(f'Description: {task['description']}')
-            print(f'Status: {task['status']}')
-            print(f'Created At: {task['createdAt']}')
-            print("-----------------------------------")
+    for task in tasks:
+        print(f'ID: {task['id']}')
+        print(f'Description: {task['description']}')
+        print(f'Status: {task['status']}')
+        print(f'Created At: {task['createdAt']}')
+        print("-----------------------------------")
     else:
         print('There is no tasks available')
-    
+
+def change_status(id, status):
+    tasks = load_tasks()
+    found = False
+    for task in tasks:
+        if task['id'] == id:
+            task['status'] = status
+            found = True
+            break
+    if found:
+        save_tasks(tasks)
+        print('Status was successfully updated')
+    else:
+        print(f'Task with ID {id} was not found')
+
 def main():
     parser = argparse.ArgumentParser(description='Simple CLI tool to organize your tasks')
 
@@ -84,12 +98,15 @@ def main():
 
     parser_add = subparsers.add_parser('add', help='Add a new task')
     parser_add.add_argument('task', type=str, help='Description of the task to be added')
-    parser_list = subparsers.add_parser('list', help='List the available tasks')
+
     parser_update = subparsers.add_parser('update', help='Update an existing task')
     parser_update.add_argument('id', type=int, help='Unique ID of the task to be modified')
     parser_update.add_argument('new_description', type=str, help='New description for the specified task')
+
     parser_delete = subparsers.add_parser('delete', help='Delete an existing task')
     parser_delete.add_argument('id', type=int, help='Unique ID of the task to be updated')
+
+    parser_list = subparsers.add_parser('list', help='List the available tasks')
 
     args = parser.parse_args()
 
@@ -101,18 +118,9 @@ def main():
         update_task(args.id, args.new_description)
     elif args.action == 'delete':
         delete_task(args.id)
-
-''' 
-Example of an "task" object:
-{
-    'id': 1,
-    'description': 'Example',
-    'status': 'todo',
-    'createdAt': "2026-01-07T18:24:06.336485",
-    "updatedAt": "2026-01-07T18:24:06.336509"
-
-}
-'''
+    
+    # TO-DO: Add mark_in_progress status logic
+    # TO-DO: Add mark-done status logic
 
 if __name__ == "__main__":
     main()
