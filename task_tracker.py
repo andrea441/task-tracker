@@ -6,13 +6,13 @@ from datetime import datetime
 TASKS_FILE = 'tasks.json'
 
 def load_tasks():
-    # TO-DO: Do something if the file is corrupted
-    if os.path.exists(TASKS_FILE):
+    if not os.path.exists(TASKS_FILE):
+        return []
+    try:
         with open(TASKS_FILE, 'r', encoding='utf-8') as f:
-            tasks = json.load(f)
-    else:
-        tasks = []
-    return tasks
+            return json.load(f)
+    except json.JSONDecodeError:
+        return []
  
 def save_tasks(tasks):
     with open(TASKS_FILE, 'w', encoding='utf-8') as f:
@@ -29,6 +29,7 @@ def add_task(task):
         'id': get_id(tasks),
         'description': task,
         'status': 'todo',
+        # TO-DO: Print the dates in a human-readable format
         'createdAt': datetime.now().isoformat(),
         'updatedAt': datetime.now().isoformat()
         }
@@ -65,17 +66,21 @@ def delete_task(id):
     else:
         print(f'Task with ID {id} was not found')
 
-def list_tasks():
-    # TO-DO: Add listing by status
+def list_tasks(status=None):
     tasks = load_tasks()
+    print('------------------------------------')
     for task in tasks:
+        if status and task['status'] != status:
+            continue
         print(f'ID: {task['id']}')
         print(f'Description: {task['description']}')
         print(f'Status: {task['status']}')
-        print(f'Created At: {task['createdAt']}')
-        print("-----------------------------------")
-    else:
-        print('There is no tasks available')
+        print(f'Created at: {task['createdAt']}')
+        print('------------------------------------')
+    
+    # TO-DO: Add this message when there is no tasks of a certain status
+    if not tasks:
+        print('There are no tasks available')
 
 def change_status(id, status):
     tasks = load_tasks()
@@ -107,20 +112,24 @@ def main():
     parser_delete.add_argument('id', type=int, help='Unique ID of the task to be updated')
 
     parser_list = subparsers.add_parser('list', help='List the available tasks')
+    parser_list.add_argument('status', type=str, nargs='?', choices=['todo', 'done', 'in-progress'], help='Filter tasks by status')
+
+    parser_mark = subparsers.add_parser('mark', help='Marks an specific task with a status')
+    parser_mark.add_argument('id', type=int, help='Unique ID of the task to mark')
+    parser_mark.add_argument('status', type=str, choices=['todo', 'done', 'in-progress'], help='New status to which the selected task will change')
 
     args = parser.parse_args()
 
     if args.action == 'add':
         add_task(args.task)
     elif args.action == 'list':
-        list_tasks()
+        list_tasks(args.status)
     elif args.action == 'update':
         update_task(args.id, args.new_description)
     elif args.action == 'delete':
         delete_task(args.id)
+    elif args.action == 'mark':
+        change_status(args.id, args.status)
     
-    # TO-DO: Add mark_in_progress status logic
-    # TO-DO: Add mark-done status logic
-
 if __name__ == "__main__":
     main()
