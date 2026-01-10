@@ -59,21 +59,20 @@ def delete_task(id):
 
 def list_tasks(status=None):
     tasks = load_tasks()
+    if status:
+        tasks = [task for task in tasks if task['status'] == status]
     print('------------------------------------')
     for task in tasks:
-        if status and task['status'] != status:
-            continue
-        print(f'ID: {task['id']}')
-        print(f'Description: {task['description']}')
-        print(f'Status: {task['status']}')
-        # TO-DO: Print the dates in a human-readable format
-        print(f'Created at: {task['createdAt']}')
-        print(f'Updated at: {task['updatedAt']}')
+        created_date = datetime.fromisoformat(task['createdAt']).strftime('%Y-%m-%d %H:%M')
+        updated_date = datetime.fromisoformat(task['updatedAt']).strftime('%Y-%m-%d %H:%M')
+        print(f'ID: {task["id"]}')
+        print(f'Description: {task["description"]}')
+        print(f'Status: {task["status"]}')
+        print(f'Created at: {created_date}')
+        print(f'Updated at: {updated_date}')
         print('------------------------------------')
-    
-    # TO-DO: Add this message when there is no tasks of a certain status
     if not tasks:
-        print('There are no tasks available')
+        print('There are no tasks available.')
 
 def change_status(id, status):
     tasks = load_tasks()
