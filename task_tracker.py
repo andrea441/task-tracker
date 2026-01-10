@@ -103,33 +103,30 @@ def main():
 
     parser_add = subparsers.add_parser('add', help='Add a new task')
     parser_add.add_argument('task', type=str, help='Description of the task to be added')
+    parser_add.set_defaults(func=lambda args: add_task(args.task))
 
     parser_update = subparsers.add_parser('update', help='Update an existing task')
     parser_update.add_argument('id', type=int, help='Unique ID of the task to be modified')
     parser_update.add_argument('new_description', type=str, help='New description for the specified task')
+    parser_update.set_defaults(func=lambda args: update_task(args.id, args.new_description))
 
     parser_delete = subparsers.add_parser('delete', help='Delete an existing task')
     parser_delete.add_argument('id', type=int, help='Unique ID of the task to be updated')
+    parser_delete.set_defaults(func=lambda args: delete_task(args.id))
 
     parser_list = subparsers.add_parser('list', help='List the available tasks')
     parser_list.add_argument('status', type=str, nargs='?', choices=['todo', 'done', 'in-progress'], help='Filter tasks by status')
+    parser_list.set_defaults(func=lambda args: list_tasks(args.status))
 
     parser_mark = subparsers.add_parser('mark', help='Marks an specific task with a status')
     parser_mark.add_argument('id', type=int, help='Unique ID of the task to mark')
     parser_mark.add_argument('status', type=str, choices=['todo', 'done', 'in-progress'], help='New status to which the selected task will change')
+    parser_mark.set_defaults(func=lambda args: change_status(args.id, args.status))
 
     args = parser.parse_args()
 
-    if args.action == 'add':
-        add_task(args.task)
-    elif args.action == 'list':
-        list_tasks(args.status)
-    elif args.action == 'update':
-        update_task(args.id, args.new_description)
-    elif args.action == 'delete':
-        delete_task(args.id)
-    elif args.action == 'mark':
-        change_status(args.id, args.status)
+    if hasattr(args, 'func'):
+        args.func(args)
     
 if __name__ == "__main__":
     main()
