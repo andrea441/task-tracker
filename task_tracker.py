@@ -29,7 +29,6 @@ def add_task(task):
         'id': get_id(tasks),
         'description': task,
         'status': 'todo',
-        # TO-DO: Print the dates in a human-readable format
         'createdAt': datetime.now().isoformat(),
         'updatedAt': datetime.now().isoformat()
         }
@@ -39,32 +38,24 @@ def add_task(task):
 
 def update_task(id, new_description):
     tasks = load_tasks()
-    found = False
     for task in tasks:
         if task['id'] == id:
             task['description'] = new_description
             task['updatedAt'] = datetime.now().isoformat()
-            found = True
-            break
-    if found:
-        save_tasks(tasks)
-        print('Task was successfully updated')
-    else:
-        print(f'Task with ID {id} was not found')
+            save_tasks(tasks)
+            print(f'Task with ID {id} was successfully updated')
+            return
+    print(f'Task with ID {id} was not found')
 
 def delete_task(id):
     tasks = load_tasks()
-    found = False
     for i, task in enumerate(tasks):
         if task['id'] == id:
             tasks.pop(i)
-            found = True
-            break
-    if found:
-        save_tasks(tasks)
-        print('Task was successfully deleted')
-    else:
-        print(f'Task with ID {id} was not found')
+            save_tasks(tasks)
+            print(f'Task with ID {id} was successfully deleted')
+            return
+    print(f'Task with ID {id} was not found')
 
 def list_tasks(status=None):
     tasks = load_tasks()
@@ -75,7 +66,9 @@ def list_tasks(status=None):
         print(f'ID: {task['id']}')
         print(f'Description: {task['description']}')
         print(f'Status: {task['status']}')
+        # TO-DO: Print the dates in a human-readable format
         print(f'Created at: {task['createdAt']}')
+        print(f'Updated at: {task['updatedAt']}')
         print('------------------------------------')
     
     # TO-DO: Add this message when there is no tasks of a certain status
@@ -84,17 +77,14 @@ def list_tasks(status=None):
 
 def change_status(id, status):
     tasks = load_tasks()
-    found = False
     for task in tasks:
         if task['id'] == id:
             task['status'] = status
-            found = True
-            break
-    if found:
-        save_tasks(tasks)
-        print('Status was successfully updated')
-    else:
-        print(f'Task with ID {id} was not found')
+            task['updatedAt'] = datetime.now().isoformat()
+            save_tasks(tasks)
+            print(f'Task with ID {id} was successfully marked as {status}')
+            return
+    print(f'Task with ID {id} was not found')
 
 def main():
     parser = argparse.ArgumentParser(description='Simple CLI tool to organize your tasks')
